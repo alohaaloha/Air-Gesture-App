@@ -21,9 +21,15 @@ grayBlur=cv2.blur(gray, (5,5))
 sf.display_image(grayBlur)
 
 #%% METOD 0 - probati sa select_roi ovo ono
-img = sf.image_bin_adaptive(sf.image_gray(image))
-img =sf.invert(img)
+img = sf.image_bin(sf.image_gray(image))
+#img =sf.invert(img)
+#sf.display_image(img)
+
+img,a,b =sf.select_roi(orig, img)
 sf.display_image(img)
+
+#%%
+
 
 
 #%% METOD 1
