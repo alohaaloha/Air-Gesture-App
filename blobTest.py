@@ -14,7 +14,9 @@ import cv2
 import numpy as np;
  
 # Read image
-im = cv2.imread("blob1.jpg", cv2.IMREAD_GRAYSCALE)
+im = cv2.imread("blbT.jpg", cv2.IMREAD_GRAYSCALE)
+ 
+#im=sf.invert(im)
  
 # Set up the detector with default parameters.
 detector = cv2.SimpleBlobDetector_create()
