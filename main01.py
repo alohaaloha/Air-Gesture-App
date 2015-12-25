@@ -2,10 +2,13 @@
 """
 Created on Fri Dec 11 14:56:43 2015
 
-Glavni program
+main01
+-follow black BLOB and draw it
+-blob detection 
 
 @author: aloha
 """
+
 import softFunctions as sf
 import allFunctions as af
 from PIL import Image, ImageDraw
@@ -13,7 +16,6 @@ import numpy as np
 from matplotlib import pyplot as plt
 import numpy as np
 import cv2
-
 
 
 #TODO - velicina kamere
@@ -33,12 +35,10 @@ while(True):
     # 1. Capture frame-by-frame
     ret, frame = cap.read()
 
-
     # 2. Our operations on the frame come here
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     frameWithCircle, x, y = af.selectBlob(frame)
-    
-    
+       
     if(x==0 and y==0):              # blob nestao (x i y ==0)
         crtam=0
         x_old=0
@@ -48,8 +48,7 @@ while(True):
         if(x_old==0 and y_old==0):
             x_old=x
             y_old=y
-        
-                     
+                           
     if(crtam==1):
         af.connectDots(blank_image, x_old, y_old, x, y, blank_image_size[0])
         x_old=x
@@ -62,8 +61,7 @@ while(True):
     cv2.imshow('CAMERA', frameWithCircle)
     #print blank_image_size[0]
     #print frame.size
-      
-      
+         
     # 4. Wait for exit   
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
