@@ -40,6 +40,59 @@ def selectBlob(img):
     return im_with_keypoints, x, y
     
     
+def selectBlobFromG(img):
+    
+    gray=img
+     
+    # Set up the detector with default parameters.
+    detector = cv2.SimpleBlobDetector_create()
+     
+    # Detect blobs.
+    #print dir(keypoints)
+    keypoints = detector.detect(gray)
+    if not keypoints:
+        x=0
+        y=0
+    else:
+        x=keypoints[0].pt[0]
+        y=keypoints[0].pt[1]   
+    
+    
+    # Draw detected blobs as red circles.
+    # cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS ensures the size of the circle corresponds to the size of blob
+    im_with_keypoints = cv2.drawKeypoints(img, keypoints, np.array([]), (0,0,255), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+     
+    # Show keypoints
+    #sf.display_image(im_with_keypoints)      
+    return im_with_keypoints, x, y    
+    
+    
+
+def selectBlobFromG_v02(img, params, detector):
+    
+    gray=img
+     
+     
+    # Detect blobs.
+    #print dir(keypoints)
+    keypoints = detector.detect(gray)
+    if not keypoints:
+        x=0
+        y=0
+    else:
+        x=keypoints[0].pt[0]
+        y=keypoints[0].pt[1]   
+    
+    
+    # Draw detected blobs as red circles.
+    # cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS ensures the size of the circle corresponds to the size of blob
+    im_with_keypoints = cv2.drawKeypoints(img, keypoints, np.array([]), (0,0,255), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+     
+    # Show keypoints
+    #sf.display_image(im_with_keypoints)      
+    return im_with_keypoints, x, y 
+    
+    
 #---------------------
     
     
@@ -82,7 +135,7 @@ def defineParamsForCircle(params):
     
     #filter by color
     params.filterByColor=True
-    params.blobColor=255 #SVETLE
+    params.blobColor=0 #SVETLE =255
     
     # Filter by Area.
     params.filterByArea = True
@@ -91,12 +144,12 @@ def defineParamsForCircle(params):
     
     # Filter by Circularity
     params.filterByCircularity = True
-    params.minCircularity = 0.7
+    params.minCircularity = 0.5  #0.7
     params.maxCircularity = 1     
     
     # Filter by Convexity
     params.filterByConvexity = True
-    params.minConvexity = 0.87
+    params.minConvexity = 0.2 #0.87
     
     # Filter by Inertia
     params.filterByInertia = True
@@ -135,5 +188,29 @@ def defineParamsForTriangle(params):
     
     return 0
      
+
+def selectColor(image, color):
     
+    # create NumPy arrays from the boundaries
+    lower = np.array(color[0], dtype = "uint8")
+    upper = np.array(color[1], dtype = "uint8")
+    
+    # find the colors within the specified boundaries and apply
+	# the mask
+    mask = cv2.inRange(image, lower, upper)
+    output = cv2.bitwise_and(image, image, mask = mask)
+    #sf.display_image(np.hstack([img, output]))
+    #sf.display_image(output)
+    return output
+    
+
+
+
+
+
+
+
+
+
+
     

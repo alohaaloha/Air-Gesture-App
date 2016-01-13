@@ -12,7 +12,7 @@ import cv2
 import softFunctions as sf
 
 #%%
-im = cv2.imread("images/t02ssssss.jpg", cv2.IMREAD_GRAYSCALE)
+im = cv2.imread("images/fa.png", cv2.IMREAD_GRAYSCALE)
 #im=sf.invert(im)
 sf.display_image(im)
 
@@ -21,36 +21,38 @@ import cv2
 import numpy as np;
 
 # Read image
-im = cv2.imread("images/t04.jpg", cv2.IMREAD_GRAYSCALE)
+im = cv2.imread("images/gg2.jpg", cv2.IMREAD_GRAYSCALE)
 #im=sf.invert(im)
-
+#%%
 # Setup SimpleBlobDetector parameters.
 params = cv2.SimpleBlobDetector_Params()
 
 # Change thresholds
+    # Change thresholds
 params.minThreshold = 10
 params.maxThreshold = 200
-
-#filter by color
+    
+    #filter by color
 params.filterByColor=True
-params.blobColor=255 #SVETLE
-
-# Filter by Area.
+params.blobColor=0 #SVETLE 255
+    
+    # Filter by Area.
 params.filterByArea = True
-params.minArea = 500 
-
-# Filter by Circularity
+params.minArea = 300
+params.maxArea = 2000 
+    
+    # Filter by Circularity
 params.filterByCircularity = True
-params.minCircularity = 0.1
-params.maxCircularity = 0.7
-
-# Filter by Convexity
+params.minCircularity = 0.7
+params.maxCircularity = 1     
+    
+    # Filter by Convexity
 params.filterByConvexity = True
 params.minConvexity = 0.87
-
-# Filter by Inertia
+    
+    # Filter by Inertia
 params.filterByInertia = True
-params.minInertiaRatio = 0.01
+params.minInertiaRatio = 0.2
 
 # Create a detector with the parameters
 detector = cv2.SimpleBlobDetector_create(params)

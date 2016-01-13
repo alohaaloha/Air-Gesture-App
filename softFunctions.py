@@ -44,6 +44,9 @@ def image_bin(image_gs):
     ret,image_bin = cv2.threshold(image_gs, 127, 255, cv2.THRESH_BINARY)
     #image_bin = cv2.adaptiveThreshold(image_gs, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 115, 40)
     return image_bin
+def image_bin_v02(image_gs):
+    ret,image_bin = cv2.threshold(image_gs, 200, 255, cv2.THRESH_BINARY)
+
 def image_bin_adaptive(image_gs):
     image_bin = cv2.adaptiveThreshold(image_gs, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 35, 10)
     return image_bin
