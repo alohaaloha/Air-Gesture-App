@@ -205,6 +205,20 @@ def selectColor(image, color):
     
 
 
+def selectColorHSV(hue, imgFromCamera):
+
+    lower_range = np.array([max(0, hue - 10), 0, 0], dtype=np.uint8)
+    upper_range = np.array([min(180, hue + 10), 255, 255], dtype=np.uint8)
+    
+    img_hsv = cv2.cvtColor(imgFromCamera, cv2.COLOR_BGR2HSV)    
+    mask = cv2.inRange(img_hsv, lower_range, upper_range)
+    
+    binary_img = cv2.bitwise_and(img_hsv, img_hsv, mask=mask)
+    binary_img = cv2.cvtColor(binary_img, cv2.COLOR_BGR2GRAY)
+    #_, binary_img = cv2.threshold(binary_img, 127, 255, cv2.THRESH_BINARY)
+    
+    return binary_img
+
 
 
 
