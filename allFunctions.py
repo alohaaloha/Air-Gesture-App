@@ -140,7 +140,7 @@ def defineParamsForCircle(params):
     # Filter by Area.
     params.filterByArea = True
     params.minArea = 300
-    params.maxArea = 2000 
+    params.maxArea = 4000 
     
     # Filter by Circularity
     params.filterByCircularity = True
@@ -218,6 +218,24 @@ def selectColorHSV(hue, imgFromCamera):
     #_, binary_img = cv2.threshold(binary_img, 127, 255, cv2.THRESH_BINARY)
     
     return binary_img
+
+
+def selectColorHSV_v02(hue, imgFromCamera):
+
+    lower_range = np.array([max(0, hue - 10), 0, 0], dtype=np.uint8)
+    upper_range = np.array([min(180, hue + 10), 255, 255], dtype=np.uint8)
+    
+    img_hsv = cv2.cvtColor(imgFromCamera, cv2.COLOR_BGR2HSV)    
+    mask = cv2.inRange(img_hsv, lower_range, upper_range)
+    
+    binary_img = cv2.bitwise_and(img_hsv, img_hsv, mask=mask)
+    binary_img = cv2.cvtColor(binary_img, cv2.COLOR_BGR2GRAY)
+    #_, binary_img = cv2.threshold(binary_img, 127, 255, cv2.THRESH_BINARY)
+    
+    return binary_img
+
+
+
 
 
 
