@@ -15,7 +15,8 @@ af.defineParamsForCircle(params_for_circle)
 detector_for_circle = cv2.SimpleBlobDetector_create(params_for_circle)
 
 
-img = sf.load_image("images/t12.jpg")
+img = sf.load_image("images/blob2.jpg")
+print img.size
 sf.display_image(img)
 
 #%%

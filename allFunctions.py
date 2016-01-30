@@ -2,6 +2,8 @@
 """
 Created on Fri Dec 11 16:57:03 2015
 
+Fajl sadrzi funkcije koriscenje za slektovanje roi, crtanje na slici, podesavanje parametara selekcije
+
 @author: aloha
 """
 
@@ -12,6 +14,7 @@ from PIL import Image, ImageDraw
 import numpy as np
 
     
+# SELECTION 
     
 def selectBlob(img):
     
@@ -92,24 +95,8 @@ def selectBlobFromG_v02(img, params, detector):
     #sf.display_image(im_with_keypoints)      
     return im_with_keypoints, x, y 
     
-    
-#---------------------
-    
-    
-def drawDotOnImg(blank_image, x, y, width):
-    draw = ImageDraw.Draw(blank_image)
-    draw.ellipse((width-x, y, width-x+10, y+10), fill = 'red', outline ='red')
-        #draw.line((100, 200, 150, 300), fill=500)
-    
-    
-def connectDots(blank_image, x1, y1, x2, y2, width):
-    draw = ImageDraw.Draw(blank_image)
-    draw.line((width-x1, y1, width-x2, y2), fill=500, width=10)
-    
-    
-#--------------------
-    
-    
+
+
 def selectBlob_v2(image, params, detector):
     gray=sf.image_gray(image)
     #gray=sf.invert(gray)
@@ -125,8 +112,39 @@ def selectBlob_v2(image, params, detector):
     im_with_keypoints = cv2.drawKeypoints(image, keypoints, np.array([]), (0,0,255), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
     return im_with_keypoints, x, y
     
+        
+
+# DRAWING
     
     
+def drawDotOnImg(blank_image, x, y, width):
+    draw = ImageDraw.Draw(blank_image)
+    draw.ellipse((width-x, y, width-x+10, y+10), fill = 'red', outline ='red')
+        #draw.line((100, 200, 150, 300), fill=500)
+    
+    
+def connectDots(blank_image, x1, y1, x2, y2):
+    blank_image_size=blank_image.size
+    width=blank_image_size[0]
+    draw = ImageDraw.Draw(blank_image)
+    draw.line((width-x1, y1, width-x2, y2), fill=500, width=10)
+    
+def drawCrossOnImg(blank_image, x, y):
+    draw = ImageDraw.Draw(blank_image)
+    #draw.ellipse((x, y, x+10, y+10), fill = 'red', outline ='red')
+        #draw.line((100, 200, 150, 300), fill=500)
+    blank_image_size=blank_image.size
+    width=blank_image_size[0]
+    draw.line((width-x,y,width-x-10,y-10),fill=100,width=5)
+    draw.line((width-x,y,width-x-10,y+10),fill=100,width=5)
+    draw.line((width-x,y,width-x+10,y-10),fill=100,width=5)
+    draw.line((width-x,y,width-x+10,y+10),fill=100,width=5)
+    return blank_image
+    
+
+# DEFINE PARAMS FOR SELECTING
+    
+
 def defineParamsForCircle(params):
     
     # Change thresholds
@@ -189,6 +207,8 @@ def defineParamsForTriangle(params):
     return 0
      
 
+# SELECT COLOR
+
 def selectColor(image, color):
     
     # create NumPy arrays from the boundaries
@@ -233,11 +253,6 @@ def selectColorHSV_v02(hue, imgFromCamera):
     #_, binary_img = cv2.threshold(binary_img, 127, 255, cv2.THRESH_BINARY)
     
     return binary_img
-
-
-
-
-
 
 
 
