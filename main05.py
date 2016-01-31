@@ -20,7 +20,20 @@ import cv2
 from cv2 import *
 # -----------------------------------
 
+# ================================================
+# ANN
+#%%
+image_color = sf.load_image("images/alphabet.png")
+ann =  nmf.full_train_ann()
 
+#%%
+image_color = sf.load_image("images/timg.jpg")
+alphabet = ['A','B','C','D','E','F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
+nmf.predict_it(ann, image_color, alphabet)
+
+
+
+#%%
 # define params for selecting circle EDIT -> 'defineParamsForCircle(params)'
 params_for_circle = cv2.SimpleBlobDetector_Params()
 af.defineParamsForCircle(params_for_circle)
