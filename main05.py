@@ -7,7 +7,9 @@ main prog
 @author: aloha
 """
 
-# ----------------------------------
+# =======================================
+# IMPORT
+# ======================================
 import softFunctions as sf
 import allFunctions as af
 import nmFunctions as nmf
@@ -18,12 +20,14 @@ from matplotlib import pyplot as plt
 import numpy as np
 import cv2
 from cv2 import *
-# -----------------------------------
+
 
 # ================================================
 # ANN
+# ================================================
 #%%
 image_color = sf.load_image("images/alphabet.png")
+#%%
 ann =  nmf.full_train_ann()
 
 #%%
@@ -34,6 +38,9 @@ nmf.predict_it(ann, image_color, alphabet)
 
 
 #%%
+# ================================================
+# PARAMS
+# ================================================
 # define params for selecting circle EDIT -> 'defineParamsForCircle(params)'
 params_for_circle = cv2.SimpleBlobDetector_Params()
 af.defineParamsForCircle(params_for_circle)
@@ -52,16 +59,18 @@ upper_color2 = np.array([20,255,255])
 #lower_color = np.array([90,50,50])
 #upper_color = np.array([160,255,255])
 
-
 # helper
 x_old=0
 y_old=0
 crtam=0;
 
-
 # blank image to draw on - we draw on this blank_image
 blank_image = Image.new('RGBA', (500, 500), (255, 255, 255, 0))
 
+
+# ======
+# GO
+# ======
 # camera
 cap = cv2.VideoCapture(0)
 
