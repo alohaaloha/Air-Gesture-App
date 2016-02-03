@@ -127,7 +127,7 @@ def connectDots(blank_image, x1, y1, x2, y2):
     blank_image_size=blank_image.size
     width=blank_image_size[0]
     draw = ImageDraw.Draw(blank_image)
-    draw.line((width-x1, y1, width-x2, y2), fill=500, width=10)
+    draw.line((width-x1, y1, width-x2, y2), fill=500, width=20)
     
 def drawCrossOnImg(blank_image, x, y):
     draw = ImageDraw.Draw(blank_image)

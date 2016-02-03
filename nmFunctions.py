@@ -1,27 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sat Jan 30 20:05:45 2016
-
-Fajl sadrzi funkcije koriscenje za rad sa neuronskom mrezom
-
-@author: aloha
-"""
-
-import softFunctions as sf
-import allFunctions as af
-from PIL import Image, ImageDraw
-import numpy as np
-from matplotlib import pyplot as plt
-import numpy as np
-import cv2
-from cv2 import *
-
-
-
- #%% IMPORT LIBRARIES
- 
-#import potrebnih biblioteka za K-means algoritam
-# %matplotlib inline
+#import potrebnih biblioteka
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.spatial import distance
@@ -29,9 +6,7 @@ from scipy.spatial import distance
 #Sklearn biblioteka sa implementiranim K-means algoritmom
 from sklearn import datasets
 from sklearn.cluster import KMeans
-# iris = datasets.load_iris() #Iris dataset koji će se koristiti kao primer https://en.wikipedia.org/wiki/Iris_flower_data_set
 
-#import potrebnih biblioteka
 import cv2
 import collections
 
@@ -41,7 +16,30 @@ from keras.layers.core import Dense,Activation
 from keras.optimizers import SGD
 
 import matplotlib.pylab as pylab
+pylab.rcParams['figure.figsize'] = 16, 12 
 
+#####
+
+def load_image(path):
+    return cv2.cvtColor(cv2.imread(path), cv2.COLOR_BGR2RGB)
+def image_gray(image):
+    return cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+def image_bin(image_gs):
+    ret,image_bin = cv2.threshold(image_gs, 127, 255, cv2.THRESH_BINARY)
+    return image_bin
+def invert(image):
+    return 255-image
+def display_image(image, color= False):
+    if color:
+        plt.imshow(image)
+    else:
+        plt.imshow(image, 'gray')
+def dilate(image):
+    kernel = np.ones((3,3)) # strukturni element 3x3 blok
+    return cv2.dilate(image, kernel, iterations=1)
+def erode(image):
+    kernel = np.ones((3,3)) # strukturni element 3x3 blok
+    return cv2.erode(image, kernel, iterations=1)
 
 #Funkcionalnost implementirana u V2
 def resize_region(region):
@@ -61,16 +59,40 @@ def convert_output(outputs):
 def winner(output):
     return max(enumerate(output), key=lambda x: x[1])[0]
     
-    
-      
+def select_roi(image_orig, image_bin):
 
+    img, contours, hierarchy = cv2.findContours(image_bin.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    
+    regions_dict = {}
+    for contour in contours:
+        area = cv2.contourArea(contour)
+        if(area < 300):
+            continue
+        x,y,w,h = cv2.boundingRect(contour)
+        region = image_bin[y:y+h+1,x:x+w+1];
+        
+        regions_dict[x] = [resize_region(region), (x,y,w,h)]
+        cv2.rectangle(image_orig,(x,y),(x+w,y+h),(0,255,0),2)
+
+    if(len(regions_dict) == 0):
+        return image_orig, regions_dict, 0
+
+    sorted_regions_dict = collections.OrderedDict(sorted(regions_dict.items()))
+    sorted_regions = np.array(sorted_regions_dict.values())
+    
+    sorted_rectangles = sorted_regions[:,1]
+    region_distances = [-sorted_rectangles[0][0]-sorted_rectangles[0][2]]
+    for x,y,w,h in sorted_regions[1:-1, 1]:
+        region_distances[-1] += x
+        region_distances.append(-x-w)
+    region_distances[-1] += sorted_rectangles[-1][0]
+    
+    return image_orig, sorted_regions[:, 0], region_distances
+ 
+
+# TODO 7
 def create_ann():
-    '''
-    Implementirati veštačku neuronsku mrežu sa 28x28 ulaznih neurona i jednim skrivenim slojem od 128 neurona.
-    Odrediti broj izlaznih neurona. Aktivaciona funkcija je sigmoid.
-    '''
     ann = Sequential()
-    # Postaviti slojeve neurona mreže 'ann'
     ann.add(Dense(128, input_dim=784, activation='sigmoid'))
     ann.add(Dense(26, activation='sigmoid'))
     return ann
@@ -79,104 +101,47 @@ def train_ann(ann, X_train, y_train):
     X_train = np.array(X_train, np.float32)
     y_train = np.array(y_train, np.float32)
    
-    # definisanje parametra algoritma za obucavanje
     sgd = SGD(lr=0.01, momentum=0.9)
     ann.compile(loss='mean_squared_error', optimizer=sgd)
 
-    # obucavanje neuronske mreze
     ann.fit(X_train, y_train, nb_epoch=500, batch_size=1, verbose = 0, shuffle=False, show_accuracy = False) 
       
     return ann
 
+image_color = load_image('images/alphabet.png')
+img = image_bin(image_gray(image_color))
+selected_regions, letters, region_distances = select_roi(image_color.copy(), img)   
+alphabet = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
+inputs = prepare_for_ann(letters)
+outputs = convert_output(alphabet)
+ann = create_ann()
+ann = train_ann(ann, inputs, outputs)
 
 
-# vrati prepoznato u obliku liste
-def display_result(outputs, alphabet):
-    '''za svaki rezultat pronaći indeks pobedničkog
-        regiona koji ujedno predstavlja i indeks u alfabetu.
-        Dodati karakter iz alfabet u result'''
-    result = []
-    for output in outputs:
-        result.append(alphabet[winner(output)])
+def display_result(outputs, alphabet, k_means):
+    w_space_group = max(enumerate(k_means.cluster_centers_), key = lambda x: x[1])[0]
+    result = alphabet[winner(outputs[0])]
+    for idx, output in enumerate(outputs[1:,:]):
+        if (k_means.labels_[idx] == w_space_group):
+            result += ' '
+        result += alphabet[winner(output)]
     return result
+    
+def pogodi(image_color):
+    #image_color = load_image('images/zju.jpg')
+    img = image_bin(image_gray(image_color))
+    img = invert(img)
+    #display_image(invert(img))
+    selected_regions, letters, distances = select_roi(image_color.copy(), img)
+    #display_image(selected_regions)
+    if(len(letters) == 0):
+        print 'No match for letter'
+        return
 
+    distances = np.array(distances).reshape(len(distances), 1)
 
-
-
-def full_train_ann():
-	# 1) LOAD
-	image_color = sf.load_image("images/alphabet.png")
-	sf.display_image(image_color)
-
-	# 2) PREPARE_IMG
-	img = sf.image_bin(sf.image_gray(image_color))
-
-	sf.display_image(img)
-
-	# 3) SELECT_ROI
-	selected_regions, letters_regions, region_distances = sf.select_roi(image_color.copy(), img)
-	sf.display_image(selected_regions) #selected_regions je slika sa oznacenim regionima
-	print 'Broj prepoznatih regiona:', len(letters_regions)
-	#print region_distances
-
-	# 4) LEARN
-	alphabet = ['A','B','C','D','E','F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
-
-	inputs = prepare_for_ann(letters_regions)
-	outputs = convert_output(alphabet)
-
-	ann = create_ann()
-	ann = train_ann(ann, inputs, outputs)
-
-	# 5) TEST_1
-	# testing if ann can even predict stuff used for learning
-	result = ann.predict(np.array(inputs, np.float32)) 
-	#print result # vrednosti izlaza (od 0 do 1 - ono sa table)
-	sf.display_image(selected_regions) # slika sa oznacenim regionima
-	print 'RESENJE: '
-	print display_result(result, alphabet)
-
-	return ann
-
-
-
-
-def predict_it(ann, image_from_canvas, alphabet):
-	letter=''
-
-	#2) PREPARE_IMG
-	img = sf.image_bin(sf.image_gray(image_from_canvas))
-	img = sf.invert(img)
-	img = sf.erode(img)
-	img = sf.erode(img)
-	img=sf.dilate(img)
-	img=sf.dilate(img)
-	img=sf.dilate(img)
-	img=sf.dilate(img)
-	#sf.display_image(img)
-
-
-	# 3) SELECT_ROI
-	selected_regions, letters, distances = sf.select_roi_better(image_from_canvas.copy(), img)
-	#display_image(selected_regions)
-	print 'Broj prepoznatih regiona:', len(letters)
-	#print distances
-
-
-	# 4) K-MEANS
-	#Podešavanje centara grupa K-means algoritmom
-	#distances = np.array(distances).reshape(len(distances), 1)
-	#Neophodno je da u K-means algoritam bude prosleđena matrica u kojoj vrste određuju elemente
-	#k_means = KMeans(n_clusters=2, max_iter=2000, tol=0.00001, n_init=10)
-	#k_means.fit(distances)
-
-	# 6) PREDICT
-	inputs = prepare_for_ann(letters)
-	results = ann.predict(np.array(inputs, np.float32))
-	#print display_result(results, alphabet, k_means)
-	print display_result(results, alphabet)
-
-	#rez=display_result(results, alphabet)
-
-
-	return letter 
+    k_means = KMeans(n_clusters=1, max_iter=2000, tol=0.00001, n_init=10)
+    k_means.fit(distances)
+    inputs = prepare_for_ann(letters)
+    results = ann.predict(np.array(inputs, np.float32))
+    print display_result(results, alphabet, k_means)

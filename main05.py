@@ -7,9 +7,7 @@ main prog
 @author: aloha
 """
 
-# =======================================
-# IMPORT
-# ======================================
+# ----------------------------------
 import softFunctions as sf
 import allFunctions as af
 import nmFunctions as nmf
@@ -20,27 +18,11 @@ from matplotlib import pyplot as plt
 import numpy as np
 import cv2
 from cv2 import *
+import time
+import nmFunctions as nm
+# -----------------------------------
 
 
-# ================================================
-# ANN
-# ================================================
-#%%
-image_color = sf.load_image("images/alphabet.png")
-#%%
-ann =  nmf.full_train_ann()
-
-#%%
-image_color = sf.load_image("images/timg.jpg")
-alphabet = ['A','B','C','D','E','F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
-nmf.predict_it(ann, image_color, alphabet)
-
-
-
-#%%
-# ================================================
-# PARAMS
-# ================================================
 # define params for selecting circle EDIT -> 'defineParamsForCircle(params)'
 params_for_circle = cv2.SimpleBlobDetector_Params()
 af.defineParamsForCircle(params_for_circle)
@@ -59,20 +41,21 @@ upper_color2 = np.array([20,255,255])
 #lower_color = np.array([90,50,50])
 #upper_color = np.array([160,255,255])
 
+
 # helper
 x_old=0
 y_old=0
 crtam=0;
 
+
 # blank image to draw on - we draw on this blank_image
 blank_image = Image.new('RGBA', (500, 500), (255, 255, 255, 0))
 
-
-# ======
-# GO
-# ======
 # camera
 cap = cv2.VideoCapture(0)
+
+vreme = time.time()
+canvasEmpty = True
 
 while(1):
 
@@ -115,6 +98,7 @@ while(1):
         af.connectDots(blank_image, x_old, y_old, x, y)
         x_old=x
         y_old=y
+        canvasEmpty = False
 
 
     # =======================
@@ -148,6 +132,17 @@ while(1):
     #cv2.imshow('Selected',res)
     #cv2.imshow('Selected',res2)
     cv2.imshow('Canvas',np.asarray(temp_img.convert('RGB')))
+    
+    # ================
+    # na svake 4 sekunde ukoliko je pisano po canvasu
+    # prosledjuje trenutnu sliku funkciji koja vraca prepoznat karakter sa slike
+    # ================    
+    if(time.time() > vreme + 4 and canvasEmpty == False):
+        vreme = time.time()+4
+        canvasEmpty = True
+        nm.pogodi(np.asarray(blank_image.convert('RGB')))
+        blank_image = Image.new('RGBA', (500, 500), (255, 255, 255, 0))    
+    
     
     # Wait for exit (Q)   
     if cv2.waitKey(1) & 0xFF == ord('q'):
