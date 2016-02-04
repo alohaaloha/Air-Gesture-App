@@ -135,8 +135,8 @@ def pogodi(image_color):
     selected_regions, letters, distances = select_roi(image_color.copy(), img)
     #display_image(selected_regions)
     if(len(letters) == 0):
-        print 'No match for letter'
-        return
+        #print 'No match for letter'       
+        return 'nista'
 
     distances = np.array(distances).reshape(len(distances), 1)
 
@@ -144,4 +144,6 @@ def pogodi(image_color):
     k_means.fit(distances)
     inputs = prepare_for_ann(letters)
     results = ann.predict(np.array(inputs, np.float32))
-    print display_result(results, alphabet, k_means)
+    
+    #print display_result(results, alphabet, k_means)
+    return display_result(results, alphabet, k_means)

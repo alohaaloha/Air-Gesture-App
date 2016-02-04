@@ -20,8 +20,12 @@ import cv2
 from cv2 import *
 import time
 import nmFunctions as nm
+
+import os
 # -----------------------------------
 
+#1-otvara, 2-neotvara
+open_apps=1
 
 # define params for selecting circle EDIT -> 'defineParamsForCircle(params)'
 params_for_circle = cv2.SimpleBlobDetector_Params()
@@ -140,7 +144,15 @@ while(1):
     if(time.time() > vreme + 4 and canvasEmpty == False):
         vreme = time.time()+4
         canvasEmpty = True
-        nm.pogodi(np.asarray(blank_image.convert('RGB')))
+        letter = nm.pogodi(np.asarray(blank_image.convert('RGB')))
+        if(letter!='nista'):
+            print '>>> '+letter+' <<<'
+            if(open_apps==1):
+                if(letter=='P'):
+                    os.startfile('C:\Program Files\Adobe\Adobe Photoshop CS6 (64 Bit)\Photoshop.exe')
+                if(letter=='C'):
+                    os.startfile('C:\Program Files (x86)\Google\Chrome\Application\chrome.exe')
+
         blank_image = Image.new('RGBA', (500, 500), (255, 255, 255, 0))    
     
     
